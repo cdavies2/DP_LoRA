@@ -158,6 +158,7 @@ tensorboard-data-server==0.7.2
 tensorflow==2.19.0
 termcolor==2.5.0
 terminado==0.18.1
+tf_keras==2.19.0
 tfhe-py @ git+https://github.com/pmuens/tfhe-py.git@5ca4a4218a15d3b9589719fa6beead3dedeadea4
 threadpoolctl==3.5.0
 tinycss2==1.4.0
