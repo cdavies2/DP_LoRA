@@ -89,3 +89,93 @@ for batch in Dataloader(train_dataset, batch_size=32):
 * Source: https://medium.com/pytorch/differential-privacy-series-part-1-dp-sgd-algorithm-explained-12512c3959a3
 
 # Efficient Per-Sample Gradient Computation in Opacus
+* Differential privacy focuses on worst-case guarantees, so we must check the gradient of every sample in a batch of data.
+* Microbatching yields correct gradients but is very inefficient.
+
+## Vectorized Computation
+* Vectorized computation allows Opacus to compute per-sample gradients much faster than microbatching.
+* To perform this, we derive the per-sample gradient formula, and implement a vectorized version of it.
+* The focus is on simple linear layers (building blocks for multi-layer perceptions)
+## Efficient Per-Sample Gradient Computation for MLP
+* This focuses on one linear layer in a neural network, with weight matrix W, bias is omitted, and forward pass is denoted by Y=WX where X is input and Y is output.
+* With a single sample, X is a vector, with  a batch (like in Opacus) X is a matrix of size dxB, with B columns (B is batch size) where each column is an input vector of dimension d. 
+* Output matrix Y is of size rxB where each column is the output vector corresponding to an element in the batch and r is the output dimension.
+* In Opacus we need the per-sample derivative of the loss with respect to weights W. First, find the derivative of the loss with respect to weights and later deal with per-sample.
+* General form of the chain rule is...
+    ∂L/∂z = (∂L/∂y) * (∂y/∂z)
+* The simplified version of this equation corresponds to a matrix multiplication in PyTorch. 
+* The gradient of loss with respect to the weight relies on the gradient of loss with respect to output Y. Because Opacus requires computation of per-sample gradients, we need the following...
+    (∂Lbatch/∂Wi,j) = (∂L/∂Yi'^(b))*Xj^(b)
+* The notation Y=WX was used for forward pass of a single layer of a neural network. When the network has more layers, a better notation would be Z^(n+1) = W^(n+1) * Z^(n), where n corresponds to each layer of the neural network. In that case, gradients with respect to any activations Z^(n) are "highway gradients" and gradients with respect to weights are "exit gradients"
+* Highway gradients retain per-sample information, but exit gradients do not (highway are per-sample, but exit aren't necessarily)
+* To compute sample exit gradients efficiently, we....
+    1. Store activations elsewhere
+    2. Find a way to access highway gradients.
+* PyTorch can do the above with module and tensor hooks. The main ones are...
+    1. _Parameter hook_: attaches to a `nn.Module's` Parameter tensor and will always run dduring the backward pass. The signature is `hook(grad) -> Tensor on None`
+    2. nn.Module hook, there are two types
+        a. _Forward hook_: `hook(module, input, output) -> None or modified output`
+        b. _Backward hook_: `hook(module, grad_input, grad_output) -> tuple(Tensor) or None`
+* `grad_input` and `grad_output` are tuples that contain the gradients with respect to the inputs and outputs respectively.
+* We use two hooks, one forward and one backward. In the forward below, store the activations
+```
+def forward_hook(module, input, output):
+    module.activations = input
+```
+* In the backward, use `grad_output` (highway gradient) along with stored activations (input to layer) to compute the per-sample gradient
+```
+def backward_hook(module, grad_input, grad_output):
+    module.grad_sample = compute_grad_sample(module.activations, grad_output)
+```
+* The average gradient of loss with respect to the weights is the result of a matrix multiplication. To get the per-sample gradient, remove the sum reduction, replacing the matrix multiplication with a batched outer product. Torch `einsum` lets us do that in vectorized form, and the method `compute_grad_sample` is defined based on `einsum` throughout our code. This is what said code looks like 
+```
+
+import torch
+import torch.nn as nn
+
+from .utils import create_or_extend_grad_sample, register_grad_sampler
+
+
+@register_grad_sampler(nn.Linear)
+def compute_linear_grad_sample(
+    layer: nn.Linear, A: torch.Tensor, B: torch.Tensor, batch_dim: int = 0
+) -> None:
+    """
+    Computes per sample gradients for ``nn.Linear`` layer
+
+    Args:
+        layer: Layer
+        A: Activations
+        B: Backpropagations
+        batch_dim: Batch dimension position
+    """
+    gs = torch.einsum("n...i,n...j->nij", B, A)
+    create_or_extend_grad_sample(layer.weight, gs, batch_dim)
+    if layer.bias is not None:
+
+        create_or_extend_grad_sample(
+            layer.bias,
+            torch.einsum("n...k->nk", B),
+            batch_dim,
+        )
+```
+
+* Source: https://medium.com/pytorch/differential-privacy-series-part-2-efficient-per-sample-gradient-computation-in-opacus-5bf4031d9e22
+
+# Efficient Per-Sample Gradient Computation for More Layers in Opacus
+* A major feature of Opacus is "vectorized computation", meaning it can compute per-sample gradients much faster than microbatching by deriving the per-sample gradient formula and implementing a vectorized version of it. Said per-sample gradient formula is....
+    (∂Lbatch/∂Wi,j) = (∂L/∂Yi'^(b))*Xj^(b)
+* Gradients with respect to activations, which retain per-sample information, are "highway gradients", while gradients with respect to weights are "exit gradients"
+* einsum facilitates vectorized computation
+
+## Extending the Idea to Other Modules
+* A linear layer performs a matrix multiplication (`matmul`) between inputs and parameters. All other layers do this, but while carrying additional constraints, like weight sharing in a convolution, or sequential accumulation in the backward pass in an LSTM. 
+
+## Convolution
+* A `Conv2D` with a 2x2 kernel operating on an input with just one channel involves more than just a simple matrix multiplication. However, a matrix multiplication along with some reshaping can achieve the same results.
+* To implement efficient matrix multiplication using einsum, Opacus performs `unfold`, `matmul`, `reshape`, as seen in the link below
+https://github.com/pytorch/opacus/blob/main/opacus/grad_sample/conv.py
+
+## Recurrent: RNN, GRU, and LSTM
+
+* Source: https://pytorch.medium.com/differential-privacy-series-part-3-efficient-per-sample-gradient-computation-for-more-layers-in-39bd25df237
