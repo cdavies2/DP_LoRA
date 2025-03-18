@@ -43,6 +43,6 @@ jobs:
         GLHF_API_KEY: ${{secrets.SECRET_KEY}}
         HF_TOKEN: ${{secrets.HF_TOKEN}}
       run: |
-        jupyter execute make_models.ipynb
+        # jupyter execute make_models.ipynb
         # pytest --no-header  -v -rfs
         
