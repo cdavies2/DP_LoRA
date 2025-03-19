@@ -1,7 +1,7 @@
 .venv
 __pycache__
 .ipynb_checkpoints
-pkl_files/
+pkl_backups/
 test_trainer
 mis_model
 mis_token
