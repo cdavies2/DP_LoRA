@@ -177,5 +177,41 @@ def compute_linear_grad_sample(
 https://github.com/pytorch/opacus/blob/main/opacus/grad_sample/conv.py
 
 ## Recurrent: RNN, GRU, and LSTM
+* Recurrent neural networks catch temporal effects by using intermediate hidden states connected in a sequence. They map a sequence of input vectors to output vectors.
+* A network cell transforms a single input token or its intermediate representation and updates the hidden state vector of the cell. 
+* All cells in one flat sublayer share the same set of parameters.
+* RNN, GRU, and LSTM are the three most populat approaches to implementing recurrent neural networks, as they introduce different cell types based on a parametrized linear transformation, but the basic form of the neural network remains unchanged.
+* In Opacus, to efficiently compute per-sample gradients for recurrent layers, you must address how recurrent layers are implemented as the `cuDNN` layer, so Opacus can't add a hook to their internal components.
+* Because of this, `nn.Linear` is cloned to have a separate per-sample gradient computation function that accumulates gradients in a chain rather than concatenating them.
+* `RNNLinear` tells Opacus that multiple occurrences of the same cell are for different tokens in one example, thus saving memory.
+* `DPRNN`, `DPGRU`, and `DPLSTM` implement the same logic as the original modules from `torch.nn`, but based on the cells compatible with Opacus.
+
+## Multi-Head Attention
+* Multi-head attention computes queries, keys, and values by applying three lienar layers on a sequence of input vectors and returns a combination of the values weighted by the attention, which is obtained via softmax on the dot product between queries and keys. All these components are fused together at `cuDNN`
+* Multi-head attention in Opacus has 2 steps..
+    1. Opacus automatically hooks itself to linear layers to compute per-sample gradients, and said linear layers use `einsum` to compute grade samples
+    2. An additional `SequenceBias` layer adds a bias vector to the sequence, augmented with per-sample gradient computation.
+
+## Normalization Layers
+* With Differential Privacy, batch normalization layers are prohibited because they mix information across samples of a batch.
+* Other types of normalization `LayerNorm`, `InstanceNorm`, and `GroupNorm`, are xallowed and supported, as they don't normalize over a batch dimension and thus don't mix information
+* `LayerNorm` normalizes over all channels of a particular sample and `InstanceNorm` normalizes over one channel of a particular sample.
+* `GroupNorm` normalizes over a "group" of channels of a particular sample.
+* Normalization layers can be split into a linear layer and a non-parametrized layer (which performs the mean/variance normalization).
+
+## Embedding
+* An embedding layer can be viewed as a special linear layer where input is one-hot encoded. Thus, the layer's gradient is the outer product of the one-hot input and gradient of the output
+* The layer's gradient is a matrix of zeroes, except at the row corresponding to the input index, where the value is the gradient of the output.
+* The gradient with respect to the embedding layer is very sparse, as the only updated embeddings are from the current data sample.
+
+## Discussion
+* Overall, Opacus computes per-sample gradients by capturing activations and highway gradients, then efficiently performing matrix multiplications.
+* For modules that aren't readily amenable to matrix multiplications (EX: Conv, normalization), some linear algebra can be done to get it in the right form.
+* For modules that don't allow attachment of hooks (EX: RNNs, Multt Head Attention), reimplement them with `nn.Linear`.
+* When modules are re-implemented, ensure their `param_dict()` is fully compatible with that of their non-DP counterparts, meaning when you finish training your `DPMultiHeadAttention`, you can directly load its weights onto a `nn.MultiheadAttention` and serve it in production for inference.
+
+* A module can be a building block or composite
+    1. _Building block_: "default classes", have their own hooks, and can be used directly (`nn.Linear`, `nn.Convld`, `nn.LayerNorm`, `nn.GroupNorm`, `nn.InstanceNorm`)
+    2. _Composite_: modules that are composed of building blocks. They're supported as long as all trainable submodules are supported. Frozen modules don't need to be supported. An `nn.Module` can be frozen in PyTorch by unsetting `requires_grad` in each of its parameters.
 
 * Source: https://pytorch.medium.com/differential-privacy-series-part-3-efficient-per-sample-gradient-computation-for-more-layers-in-39bd25df237
