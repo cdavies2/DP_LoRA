@@ -103,7 +103,6 @@ nvidia-nvjitlink-cu12==12.4.127
 nvidia-nvtx-cu12==12.4.127
 opacus==1.5.3
 openai==1.60.1
-openfhe==1.2.3.1.20.4
 opt_einsum==3.4.0
 optree==0.14.1
 overrides==7.7.0
@@ -161,7 +160,6 @@ tensorflow==2.19.0
 termcolor==2.5.0
 terminado==0.18.1
 tf_keras==2.19.0
-tfhe-py @ git+https://github.com/pmuens/tfhe-py.git@5ca4a4218a15d3b9589719fa6beead3dedeadea4
 threadpoolctl==3.5.0
 tinycss2==1.4.0
 tokenizers==0.21.0
