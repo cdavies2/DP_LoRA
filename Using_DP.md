@@ -215,3 +215,52 @@ https://github.com/pytorch/opacus/blob/main/opacus/grad_sample/conv.py
     2. _Composite_: modules that are composed of building blocks. They're supported as long as all trainable submodules are supported. Frozen modules don't need to be supported. An `nn.Module` can be frozen in PyTorch by unsetting `requires_grad` in each of its parameters.
 
 * Source: https://pytorch.medium.com/differential-privacy-series-part-3-efficient-per-sample-gradient-computation-for-more-layers-in-39bd25df237
+
+
+# Diffprivlib: The IBM Differential Privacy Library
+
+* The IBM Differential Privacy Library (known as diffprivlib) utilizes the numpy and Scikit-learn packages (resulting in more recognizable functions), with default parameters to ensure accessibility.
+* diffprivlib is free to use and modify
+* Diffprivlib provides numerous mechanisms that are used under-the-hood in machine learning models and other tools for achieving differential privacy to be hidden from view.
+* Machine learning models can be trained in just two lines of code with diffprivlib; one import statement and one line to fit the model
+
+## Overview
+* Diffprivlib is installed with pip and is integrated with Scikit-learn, and leverages numpy functionality.
+* The library consists of three main modules...
+    1. `mechanisms`: collection of differential privacy mechanisms, the building blocks for developing differential privacy applications
+    2. `models`: a collection of differentially private machine learning models
+    3. `tools`: a collection of tools and utilities for simple data analytics with differential privacy.
+* Unit tests are also located in the tests/ directory on the Diffprivlib GitHub
+
+## Library Contents
+### Mechanisms
+* Mechaisms were built primarily with inclusion in complex applications in mind.
+* Similar mechanisms are grouped together (like all the Laplace mechanisms are in mechanisms.laplace)
+* Each mechanism has a `set_epsilon()` or `set_epsilon_delta()` method to set its ϵ and δ parameters, as well as a `randomise()` method to take an input value and return a diffentially private output value, as long as the mechanism has been correctly configured.
+* Some mechanisms include....
+    * `DPMechanism`: base class for all mechanisms
+    * `TruncationAndFoldingMixin`: mixin for truncating or folding numeric outputs of a mechanism
+    * `Binary`
+    * `Exponential`
+    * `ExponentialHierarchical`: `Exponential` with hierarchical utility function
+    * `Gaussian`
+    * `GaussianAnalytic`
+    * `Geometric`
+    * `GeometricTruncated`: `Geometric` with post-processing
+    * `GeometricFolded`: `Geometric` with post-processing and support for half-integer bounds
+    * `Laplace`
+    * `LaplaceTruncated`: `Laplace` with post-processing
+    * `LaplaceFolded`: `Laplace` with post-processing
+    * `LaplaceBoundedDomain`
+    * `LaplaceBoundedNoise`
+    * `Staircase`
+    * `Uniform`: special case when ϵ=0
+    * `Vector`
+
+### Machine Learning Models
+
+
+
+
+
+* Source: https://www.semanticscholar.org/reader/8c3b16144d9ab63ee966f30471b6c4b0583114e1
