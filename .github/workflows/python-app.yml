@@ -41,7 +41,7 @@ jobs:
      - name: Test with pytest
        env: 
          GLHF_API_KEY: ${{secrets.SECRET_KEY}}
-         HF_TOKEN: ${{secrets.HF_TOKEN}}
+         HF_TOKEN: ${{secrets.HF_SECRET}}
        run: |
          huggingface-cli login  --token "$HF_TOKEN" --add-to-git-credential
          # jupyter execute make_models.ipynb
