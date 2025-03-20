@@ -258,6 +258,8 @@ https://github.com/pytorch/opacus/blob/main/opacus/grad_sample/conv.py
     * `Vector`
 
 ### Machine Learning Models
+* When implementing a Gaussian naive Bayes classifier with differential privacy, a user just needs to replace the `import` statement from Scikit-learn with the import from diffprivlib and run the code and analysis in the same way. 
+* Diffprivlib supports the same pre-processing pipelines as Scikit-learn, and in some cases, the use is encouraged to optimize noise-addition and model sensitivity. The ϵ is specialized as a parameter when the model is initialized, otherwise default of ϵ=1 is used.
 
 
 

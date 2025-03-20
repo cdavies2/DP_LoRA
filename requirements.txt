@@ -24,6 +24,7 @@ datasets==3.3.2
 debugpy==1.8.12
 decorator==5.1.1
 defusedxml==0.7.1
+diffprivlib==0.6.5
 dill==0.3.8
 distro==1.9.0
 evaluate==0.4.3
@@ -103,6 +104,7 @@ nvidia-nvjitlink-cu12==12.4.127
 nvidia-nvtx-cu12==12.4.127
 opacus==1.5.3
 openai==1.60.1
+openfhe==1.2.3.1.20.4
 opt_einsum==3.4.0
 optree==0.14.1
 overrides==7.7.0
@@ -133,6 +135,7 @@ pyflakes==3.2.0
 Pygments==2.19.1
 pytest==8.3.4
 python-dateutil==2.9.0.post0
+python-dp==0.1.0
 python-json-logger==3.2.1
 pytz==2025.1
 PyYAML==6.0.2
@@ -160,6 +163,7 @@ tensorflow==2.19.0
 termcolor==2.5.0
 terminado==0.18.1
 tf_keras==2.19.0
+tfhe-py @ git+https://github.com/pmuens/tfhe-py.git@5ca4a4218a15d3b9589719fa6beead3dedeadea4
 threadpoolctl==3.5.0
 tinycss2==1.4.0
 tokenizers==0.21.0
