@@ -277,6 +277,25 @@ https://github.com/pytorch/opacus/blob/main/opacus/grad_sample/conv.py
     2. `DiffprivlibCompatibilityWarning`: triggered when a parameter, typically present in the parent of the function/class (NumPy or Scikit-Learn) is specified to a diffprivlib component which doesn't use the parameter
 
 ## Worked Example
-* 
+* For Naive Bayes, differential privacy is applied by adding noise to the means and variances of each feature (assumed independent) for each label that the model learns, ensuring decoupling of the model from the data upon which it was trained.
+* First, import the training and test data, use it to train the model using the `GaussianNB()` `fit()` method.
+* To avoid privacy leakage, bounds should be determined independently of the data, and specifying them as a parameter at initialization.
+* We can then classify unseen examples, knowing the model satisfies differential privacy. The resulting array is the predicted class of the corresponding row in X_test.
+* We can check the accuracy of the prediction using the corresponding y_test array.
+* We can loop through values of ϵ to plot the accuracy of the model for a range of privacy guarantees.
+```
+from sklearn import datasets
+from sklearn.model_selection import train_test_split
+dataset = datasets.load_iris()
+X_train, X_test, y_train, y_test = train_test_split(
+dataset.data, dataset.target, test_size=0.2)
+
+from diffprivlib.models import GaussianNB
+clf = dp.GaussianNB()
+clf.fit(X_train, y_train)
+PrivacyLeakWarning: Bounds have not been specified
+ckf.predict((X_test) == y_test).sum() / y_test.shape[0]
+
+```
 
 * Source: https://www.semanticscholar.org/reader/8c3b16144d9ab63ee966f30471b6c4b0583114e1
