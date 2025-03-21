@@ -260,9 +260,23 @@ https://github.com/pytorch/opacus/blob/main/opacus/grad_sample/conv.py
 ### Machine Learning Models
 * When implementing a Gaussian naive Bayes classifier with differential privacy, a user just needs to replace the `import` statement from Scikit-learn with the import from diffprivlib and run the code and analysis in the same way. 
 * Diffprivlib supports the same pre-processing pipelines as Scikit-learn, and in some cases, the use is encouraged to optimize noise-addition and model sensitivity. The ϵ is specialized as a parameter when the model is initialized, otherwise default of ϵ=1 is used.
+* Additional, advanced parameters include specifying range of values for each data column or the maximum norm for each sample in the data. 
+* Example models include...
+    * `LogisticRegression`: supervised, implements the logistic regression classifier using the `Vector` mechanism with minor changes to allow for non-unity data norm and to allow integration with the corresponding classifier in SKLearn
+    * `GaussianNB`: implementation of the Gaussian naive Bayes classifier (using the `Laplace` and `LaplaceBoundedDomain` mechanisms) with minor amendments
+    * `KMeans`: unsupervised, implementation of the k-means algorithm (using the `GeometricFolded` and `LaplaceBoundedDomain` mechanisms)
 
+### Tools
+* Example tools include...
+    * `histogram`, `histogram2d`, `histogramdd`: histogram functions mirroring and leveraging the functionality of their NumPy counterparts, with differential privacy (using the `GeometricTruncated` mechanism)
+    * `mean`, `var`, `std`: simple statistical functions mirroring and leveraging their Numpy counterparts, with differential privacy (using the `Laplace` and `LaplaceBoundedDomain` mechanisms)
 
+### Troubleshooting
+* Two library-specific privacy warnings can be triggered by diffprivlib
+    1. `PrivacyLeakWarning`: triggered when a differential privacy application (in `models` or `tools`) has been incorrectly configured and will not strictly satisfy differential privacy. This warning may occur when the bounds/norm of data aren't specified when calling a model, or where the bounds/norm specified don't cover all the data
+    2. `DiffprivlibCompatibilityWarning`: triggered when a parameter, typically present in the parent of the function/class (NumPy or Scikit-Learn) is specified to a diffprivlib component which doesn't use the parameter
 
-
+## Worked Example
+* 
 
 * Source: https://www.semanticscholar.org/reader/8c3b16144d9ab63ee966f30471b6c4b0583114e1
