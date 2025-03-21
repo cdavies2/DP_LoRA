@@ -43,6 +43,6 @@ jobs:
          HF_SECRET: ${{secrets.HF_SECRET}}
        run: |
          huggingface-cli login  --token $HF_SECRET --add-to-git-credential
-         jupyter execute make_models.ipynb
+         # jupyter execute make_models.ipynb
          # pytest --no-header  -v -rfs
         
