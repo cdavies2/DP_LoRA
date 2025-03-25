@@ -81,6 +81,7 @@ matplotlib==3.10.1
 matplotlib-inline==0.1.7
 mccabe==0.7.0
 mdurl==0.1.2
+mistral_common==1.5.4
 mistune==3.1.1
 ml_dtypes==0.5.1
 mpmath==1.3.0
@@ -156,6 +157,7 @@ safetensors==0.5.2
 scikit-learn==1.6.1
 scipy==1.15.2
 Send2Trash==1.8.3
+sentencepiece==0.2.0
 setuptools==75.8.0
 six==1.17.0
 sniffio==1.3.1
@@ -169,6 +171,7 @@ termcolor==2.5.0
 terminado==0.18.1
 tf_keras==2.19.0
 threadpoolctl==3.5.0
+tiktoken==0.9.0
 tinycss2==1.4.0
 tokenizers==0.21.0
 torch==2.6.0
