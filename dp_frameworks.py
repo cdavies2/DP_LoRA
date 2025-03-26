@@ -147,3 +147,35 @@ for epoch in range(1, 11):
 
 
 # Source for example: https://openmined.org/blog/differentially-private-deep-learning-using-opacus-in-20-lines-of-code/
+
+# Implement Differential Privacy with Tensorflow
+
+import tensorflow as tf
+import tensorflow_privacy
+from tensorflow_privacy.privacy.analysis import compute_dp_sgd_privacy
+
+
+tf.get_logger().setLevel("ERROR")  # logger, outputs when an error occurs
+
+# Use the MNIST dataset, just as we did with Opacus, and perform preprocessing
+train, test = tf.keras.datasets.mnist.load_data()
+train_data, train_labels = train
+test_data, test_labels = test
+
+train_data = np.array(train_data, dtype=np.float32) / 255
+test_data = np.array(test_data, dtype=np.float32) / 255
+# dividing by 255 converts image values to values in a range of 0 to 1, normalizing it
+
+train_data = train_data.reshape(train_data.shape[0], 28, 28, 1)
+
+test_data = test_data.reshape(
+    test_data.shape[0], 28, 28, 1
+)  # reshapes image data to a 28x28 pixel image
+
+train_labels = np.array(train_labels, dtype=np.int32)
+test_labels = np.array(
+    test_labels, dtype=np.int32
+)  # create arrays with the data labels
+
+
+# Source for example: https://www.tensorflow.org/responsible_ai/privacy/tutorials/classification_privacy
