@@ -234,4 +234,18 @@ model = tf.keras.Sequential(
     ]
 )
 
+# define the optimizer and loss function
+# the loss is a vector of losses per-example
+optimizer = tensorflow_privacy.DPKerasSGDOptimizer(
+    l2_norm_clip=l2_norm_clip,
+    noise_multiplier=noise_multiplier,
+    num_microbatches=num_microbatches,
+    learning_rate=learning_rate)
+
+loss = tf.keras.losses.CategoricalCrossentropy(
+    from_logits=True, reduction=tf.losses.Reduction.NONE)
+# the above calculates softmax loss, it measures the difference between predicted probability distribution and true distribution of classes.
+# the predicted targets are expected to be a logits tensor, no reduction
+
+
 # Source for example: https://www.tensorflow.org/responsible_ai/privacy/tutorials/classification_privacy
