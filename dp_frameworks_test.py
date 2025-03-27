@@ -157,8 +157,8 @@ tf.compat.v1.disable_v2_behavior()
 import tensorflow_privacy
 from tensorflow_privacy.privacy.analysis import compute_dp_sgd_privacy
 
-
-tf.get_logger().setLevel("ERROR")  # logger, outputs when an error occurs
+print("TensorFlow version: ", tf.__version__)
+tf.get_logger().setLevel("DEBUG")  # logger, outputs when an error occurs
 
 # Use the MNIST dataset, just as we did with Opacus, and perform preprocessing
 train, test = tf.keras.datasets.mnist.load_data()
@@ -194,5 +194,44 @@ def test_preprocessing():
 
 
 # check that preprocessing was effective, and the training and test data is all in the range between 0 and 1
+
+epochs = 3
+batch_size = 250
+# set learning model hyperparameters
+
+l2_norm_clip = 1.5  # maximum Euclidean norm of each gradient that is applied to update model parameters, bounds optimizer sensitivity to training points
+noise_multiplier = 1.3
+# amount of noise sampled/added to gradients, more noise = more private
+num_microbatches = 250  # each batch of data is split into microbatches, each with a single training example. Number of microbatches should evenly divide batch size, allowing to include multiple samples and reduce overhead
+learning_rate = 0.25  # higher noise, lower learning rate helps convergence
+
+# l2_norm_clip, noise_multiplier, and microbatches are privacy-specific hyperparameters
+
+
+def test_microbatches():
+    assert batch_size % num_microbatches == 0
+    # num_microbatches should divide evenly into batch_size
+
+
+# now build a convolutional neural network learning model
+model = tf.keras.Sequential(
+    [
+        tf.keras.layers.Conv2D(
+            16, 8, strides=2, padding="same", activation="relu", input_shape=(28, 28, 1)
+        ),
+        # above creates a convolution kernel that convolves over one dimension to produce a tensor of outputs
+        # there are 16 filters in the convolution, a window/kernel size of 8, 2 strides, even padding on each side, rectified linear unit activation, and a 28x28 input shape
+        tf.keras.layers.MaxPool2D(2, 1),
+        # downsamples input along its spatial dimensions by tking the maximum value over an input window (in this case, said window length is 2, shifted by 1 stride)
+        tf.keras.layers.Conv2D(32, 4, strides=2, padding="valid", activation="relu"),
+        # the next kernel had no padding, 32 filters, and a kernel size of 4
+        tf.keras.layers.MaxPool2D(2, 1),
+        tf.keras.layers.Flatten(),  # flattens input
+        tf.keras.layers.Dense(32, activation="relu"),
+        # activates the rectified linear union function, output space is 32
+        tf.keras.layers.Dense(10),
+        # output space is 10
+    ]
+)
 
 # Source for example: https://www.tensorflow.org/responsible_ai/privacy/tutorials/classification_privacy
