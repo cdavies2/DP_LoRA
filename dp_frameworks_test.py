@@ -247,5 +247,23 @@ loss = tf.keras.losses.CategoricalCrossentropy(
 # the above calculates softmax loss, it measures the difference between predicted probability distribution and true distribution of classes.
 # the predicted targets are expected to be a logits tensor, no reduction
 
+# train the model
+model.compile(optimizer=optimizer, loss=loss, metrics=['accuracy'])
+
+model.fit(train_data, train_labels, epochs=epochs, validation_data=(test_data, test_labels), batch_size=batch_size)
+
+# perform privacy analysis, which measures how much an adversary could improve their guess about properties of any individual training point by observing the outcome of the training procedure
+
+# lower privacy budget ensures a stronger privacy guarantee (as it is harder then for a single training point to affect the outcome of learning)
+
+# the two metrics used to express DP guarantee are delta (bounds probability of the guarantee not holding, should be less than the inverse of the size of the training dataset), and epsilon (bounds probability of a model's output varying by including/excluding a single training point).
+
+# compute_dp_sgd_privacy computes epsilon given delta, and its hyperaprameters are the number of points in the training data, batch_size, noise_multiplier, training epochs, and value of delta
+
+# compute_dp_sgd_privacy.compute_dp_sgd_privacy(n=train_data.shape[0],
+#                                               batch_size=batch_size,
+#                                               noise_multiplier=noise_multiplier,
+#                                               epochs=epochs,
+#                                               delta=1e-5)
 
 # Source for example: https://www.tensorflow.org/responsible_ai/privacy/tutorials/classification_privacy
