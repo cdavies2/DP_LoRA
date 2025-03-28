@@ -260,10 +260,15 @@ model.fit(train_data, train_labels, epochs=epochs, validation_data=(test_data, t
 
 # compute_dp_sgd_privacy computes epsilon given delta, and its hyperaprameters are the number of points in the training data, batch_size, noise_multiplier, training epochs, and value of delta
 
-# compute_dp_sgd_privacy.compute_dp_sgd_privacy(n=train_data.shape[0],
-#                                               batch_size=batch_size,
-#                                               noise_multiplier=noise_multiplier,
-#                                               epochs=epochs,
-#                                               delta=1e-5)
+# tensorflow_privacy.compute_dp_sgd_privacy_statement(n=train_data.shape[0],
+#                        batch_size=batch_size,
+#                        noise_multiplier=noise_multiplier,
+#                        epochs=epochs,
+#                        delta=1e-5)
+print(tensorflow_privacy.compute_dp_sgd_privacy_statement(number_of_examples=train_data.shape[0],
+                                              batch_size=batch_size,
+                                              noise_multiplier=noise_multiplier,
+                                              num_epochs=epochs,
+                                              delta=1e-5))
 
 # Source for example: https://www.tensorflow.org/responsible_ai/privacy/tutorials/classification_privacy
