@@ -199,8 +199,8 @@ tensorflow-hub==0.16.1
 tensorflow-io-gcs-filesystem==0.37.1
 tensorflow-metadata==1.16.1
 tensorflow-model-optimization==0.8.0
-tensorflow-privacy==0.8.11
-tensorflow-probability==0.20.1
+tensorflow-privacy==0.9.0
+tensorflow-probability==0.22.1
 tensorflow-text==2.15.0
 termcolor==2.5.0
 terminado==0.18.1
