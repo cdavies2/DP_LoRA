@@ -6,7 +6,4 @@ test_trainer
 mis_model
 mis_token
  mistral
-fine_tuned_mis/
-fine_tuned_mis2/
-fine_tuned_lla2/
-fine_tuned_lla
+fine_tuned/
