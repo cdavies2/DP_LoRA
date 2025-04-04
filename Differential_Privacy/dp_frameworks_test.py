@@ -4,7 +4,9 @@ import numpy as np
 from opacus import PrivacyEngine
 from tqdm import tqdm
 import pytest
-
+import tensorflow as tf
+import tensorflow_privacy
+from tensorflow_privacy.privacy.analysis import compute_dp_sgd_privacy
 import dp_opacus
 import dp_tensorflow
 
@@ -130,28 +132,28 @@ train_loader, test_loader = dp_opacus.opacus_fw.processData()
 
 # Implement Differential Privacy with Tensorflow
 
-train_data, train_label, test_data, test_label = (
+train_data, train_labels, test_data, test_labels = (
     dp_tensorflow.tensorflow_fw.processData()
 )
 
-train_data = np.array(train_data, dtype=np.float32) / 255
-test_data = np.array(test_data, dtype=np.float32) / 255
-# dividing by 255 converts image values to values in a range of 0 to 1, normalizing it
+# train_data = np.array(train_data, dtype=np.float32) / 255
+# test_data = np.array(test_data, dtype=np.float32) / 255
+# # dividing by 255 converts image values to values in a range of 0 to 1, normalizing it
 
-train_data = train_data.reshape(train_data.shape[0], 28, 28, 1)
+# train_data = train_data.reshape(train_data.shape[0], 28, 28, 1)
 
-test_data = test_data.reshape(
-    test_data.shape[0], 28, 28, 1
-)  # reshapes image data to a 28x28 pixel image
+# test_data = test_data.reshape(
+#     test_data.shape[0], 28, 28, 1
+# )  # reshapes image data to a 28x28 pixel image
 
-train_labels = np.array(train_labels, dtype=np.int32)
-test_labels = np.array(
-    test_labels, dtype=np.int32
-)  # create arrays with the data labels
+# train_labels = np.array(train_labels, dtype=np.int32)
+# test_labels = np.array(
+#     test_labels, dtype=np.int32
+# )  # create arrays with the data labels
 
 
-train_labels = tf.keras.utils.to_categorical(train_labels, num_classes=10)
-test_labels = tf.keras.utils.to_categorical(test_labels, num_classes=10)
+# train_labels = tf.keras.utils.to_categorical(train_labels, num_classes=10)
+# test_labels = tf.keras.utils.to_categorical(test_labels, num_classes=10)
 
 
 # this converts the train_labels and test_labels vector into binary classes matrices with 10 classes each
