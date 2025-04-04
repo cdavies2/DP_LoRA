@@ -5,45 +5,24 @@ from opacus import PrivacyEngine
 from tqdm import tqdm
 import pytest
 
+import dp_opacus
+import dp_tensorflow
+
 # # Training a simple PyTorch classification model
 
+# @pytest.mark.parametrize("model", [(opacus_fw, tensorflow_fw)],
+# ids=["Opacus", "Tensorflow"])
+# def test_import(model):
+# if model==opacus_fw:
+# framework=dp_opacus.opacus_fw
+# else:
+# framework=dp_tensorflow.tensorflow_fw
+
+# framework.processData()
+
+
 # # Use the built-in MNIST dataset from PyTorch
-
-# train_loader = torch.utils.data.DataLoader(
-#     datasets.MNIST(
-#         "../mnist",
-#         train=True,  # this is training data
-#         download=True,  # download data
-#         transform=transforms.Compose(
-#             [
-#                 transforms.ToTensor(),  # converts image or array to a Tensor
-#                 transforms.Normalize((0.1307,), (0.3081,)),
-#             ]  # 0.1307 is the mean and 0.3081 is the standard deviation
-#         ),
-#     ),
-#     batch_size=64,
-#     shuffle=True,
-#     num_workers=1,  # each time an iterator of a DataLoader is created, a worker process is created
-#     # the worker is used to initialize and fetch data
-#     pin_memory=True,  # enables automatic memory pinning, enabling fast data transfer
-# )
-
-# test_loader = torch.utils.data.DataLoader(
-#     datasets.MNIST(
-#         "../mnist",
-#         train=False,  # this is test data
-#         transform=transforms.Compose(
-#             [
-#                 transforms.ToTensor(),  # converts image or array to a Tensor
-#                 transforms.Normalize((0.1307,), (0.3081,)),
-#             ]  # 0.1307 is the mean and 0.3081 is the standard deviation
-#         ),
-#     ),
-#     batch_size=1024,
-#     shuffle=True,
-#     num_workers=1,
-#     pin_memory=True,
-# )
+train_loader, test_loader = dp_opacus.opacus_fw.processData()
 
 # # This Sequential PyTorch neural network model predicts the label of images from the MNIST dataset
 # # The network has 2 convolutional layers, and 2 fully connected layers
@@ -151,19 +130,9 @@ import pytest
 
 # Implement Differential Privacy with Tensorflow
 
-import tensorflow as tf
-
-tf.compat.v1.disable_v2_behavior()
-import tensorflow_privacy
-from tensorflow_privacy.privacy.analysis import compute_dp_sgd_privacy
-
-print("TensorFlow version: ", tf.__version__)
-tf.get_logger().setLevel("DEBUG")  # logger, outputs when an error occurs
-
-# Use the MNIST dataset, just as we did with Opacus, and perform preprocessing
-train, test = tf.keras.datasets.mnist.load_data()
-train_data, train_labels = train
-test_data, test_labels = test
+train_data, train_label, test_data, test_label = (
+    dp_tensorflow.tensorflow_fw.processData()
+)
 
 train_data = np.array(train_data, dtype=np.float32) / 255
 test_data = np.array(test_data, dtype=np.float32) / 255
@@ -240,17 +209,25 @@ optimizer = tensorflow_privacy.DPKerasSGDOptimizer(
     l2_norm_clip=l2_norm_clip,
     noise_multiplier=noise_multiplier,
     num_microbatches=num_microbatches,
-    learning_rate=learning_rate)
+    learning_rate=learning_rate,
+)
 
 loss = tf.keras.losses.CategoricalCrossentropy(
-    from_logits=True, reduction=tf.losses.Reduction.NONE)
+    from_logits=True, reduction=tf.losses.Reduction.NONE
+)
 # the above calculates softmax loss, it measures the difference between predicted probability distribution and true distribution of classes.
 # the predicted targets are expected to be a logits tensor, no reduction
 
 # train the model
-model.compile(optimizer=optimizer, loss=loss, metrics=['accuracy'])
+model.compile(optimizer=optimizer, loss=loss, metrics=["accuracy"])
 
-model.fit(train_data, train_labels, epochs=epochs, validation_data=(test_data, test_labels), batch_size=batch_size)
+model.fit(
+    train_data,
+    train_labels,
+    epochs=epochs,
+    validation_data=(test_data, test_labels),
+    batch_size=batch_size,
+)
 
 # perform privacy analysis, which measures how much an adversary could improve their guess about properties of any individual training point by observing the outcome of the training procedure
 
@@ -265,10 +242,14 @@ model.fit(train_data, train_labels, epochs=epochs, validation_data=(test_data, t
 #                        noise_multiplier=noise_multiplier,
 #                        epochs=epochs,
 #                        delta=1e-5)
-print(tensorflow_privacy.compute_dp_sgd_privacy_statement(number_of_examples=train_data.shape[0],
-                                              batch_size=batch_size,
-                                              noise_multiplier=noise_multiplier,
-                                              num_epochs=epochs,
-                                              delta=1e-5))
+print(
+    tensorflow_privacy.compute_dp_sgd_privacy_statement(
+        number_of_examples=train_data.shape[0],
+        batch_size=batch_size,
+        noise_multiplier=noise_multiplier,
+        num_epochs=epochs,
+        delta=1e-5,
+    )
+)
 
 # Source for example: https://www.tensorflow.org/responsible_ai/privacy/tutorials/classification_privacy
