@@ -12,15 +12,22 @@ import dp_tensorflow
 
 # # Training a simple PyTorch classification model
 
-# @pytest.mark.parametrize("model", [(opacus_fw, tensorflow_fw)],
-# ids=["Opacus", "Tensorflow"])
-# def test_import(model):
-# if model==opacus_fw:
-# framework=dp_opacus.opacus_fw
-# else:
-# framework=dp_tensorflow.tensorflow_fw
 
-# framework.processData()
+@pytest.mark.parametrize(
+    "model", [(opacus_fw, tensorflow_fw)], ids=["Opacus", "Tensorflow"]
+)
+def test_import(model):
+    if model == opacus_fw:
+        framework = dp_opacus.opacus_fw
+    else:
+        framework = dp_tensorflow.tensorflow_fw
+
+    train_data, test_data = framework.processData()
+
+    assert train_data.min() == 0.0
+    assert train_data.max() == 1.0
+    assert test_data.min() == 0.0
+    assert test_data.max() == 1.0
 
 
 # # Use the built-in MNIST dataset from PyTorch
@@ -157,11 +164,11 @@ train_data, train_labels, test_data, test_labels = (
 
 
 # this converts the train_labels and test_labels vector into binary classes matrices with 10 classes each
-def test_preprocessing():
-    assert train_data.min() == 0.0
-    assert train_data.max() == 1.0
-    assert test_data.min() == 0.0
-    assert test_data.max() == 1.0
+# def test_preprocessing():
+#     assert train_data.min() == 0.0
+#     assert train_data.max() == 1.0
+#     assert test_data.min() == 0.0
+#     assert test_data.max() == 1.0
 
 
 # check that preprocessing was effective, and the training and test data is all in the range between 0 and 1

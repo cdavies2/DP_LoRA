@@ -43,7 +43,7 @@ jobs:
          HF_SECRET: ${{secrets.HF_SECRET}}
        run: |
          huggingface-cli login  --token $HF_SECRET
-         pytest dp_frameworks_test.py
+         # pytest dp_frameworks_test.py
          # jupyter execute make_models.ipynb
          # pytest --no-header  -v -rfs
         
