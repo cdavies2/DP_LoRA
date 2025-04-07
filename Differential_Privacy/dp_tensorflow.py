@@ -16,7 +16,7 @@ class tensorflow_fw(DPFramework):
         self.test_data = None
         self.model = None
 
-    def processData():
+    def processData(self):
         # Use the MNIST dataset, just as we did with Opacus
         train, test = tf.keras.datasets.mnist.load_data()
         train_data, train_labels = train
@@ -44,3 +44,17 @@ class tensorflow_fw(DPFramework):
         # this converts the train_labels and test_labels vector into binary classes matrices with 10 classes each
 
         return train_data, train_labels, test_data, test_labels
+
+
+    def makePrivate(self):
+        # there is not an AdamW optimizer in tensorflow_privacy.DPKeras, but there is a regular Adam optimizer
+        # optimizer = tensorflow_privacy.DPKerasSGDOptimizer(
+        #     l2_norm_clip=l2_norm_clip,
+        #     noise_multiplier=noise_multiplier,
+        #     num_microbatches=num_microbatches,
+        #     learning_rate=learning_rate,
+        # )
+        
+        # loss = tf.keras.losses.CategoricalCrossentropy(
+        #     from_logits=True, reduction=tf.losses.Reduction.NONE
+        # )

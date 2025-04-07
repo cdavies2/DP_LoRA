@@ -12,9 +12,6 @@ class DPFramework(ABC):
     def processData(self):
         pass
 
-    def buildModel(self):
-        pass
-
     def makePrivate(self):
         pass
 
@@ -71,3 +68,16 @@ class opacus_fw(DPFramework):
         )
 
         return train_loader, test_loader
+
+    def makePrivate(self):
+        # privacy_engine = PrivacyEngine(secure_mode=False)
+
+        # check how to convert regular training data to data_loader form
+        
+        # model, optimizer, train_loader = privacy_engine.make_private(
+        #     module=model,
+        #     optimizer=optimizer,
+        #     data_loader=train_loader,
+        #     noise_multiplier=1.3,
+        #     max_grad_norm=1.0,
+        # )
