@@ -17,7 +17,7 @@ import dp_tensorflow
     "model", [(dp_opacus, dp_tensorflow)], ids=["Opacus", "Tensorflow"]
 )
 def test_import(model):
-    if model == opacus_fw:
+    if model == dp_opacus:
         framework = dp_opacus.opacus_fw
     else:
         framework = dp_tensorflow.tensorflow_fw
