@@ -46,7 +46,7 @@ class tensorflow_fw(DPFramework):
         return train_data, train_labels, test_data, test_labels
 
 
-    def makePrivate(self):
+    #def makePrivate(self):
         # there is not an AdamW optimizer in tensorflow_privacy.DPKeras, but there is a regular Adam optimizer
         # optimizer = tensorflow_privacy.DPKerasSGDOptimizer(
         #     l2_norm_clip=l2_norm_clip,

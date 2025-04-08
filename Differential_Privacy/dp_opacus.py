@@ -69,7 +69,7 @@ class opacus_fw(DPFramework):
 
         return train_loader, test_loader
 
-    def makePrivate(self):
+    #def makePrivate(self):
         # privacy_engine = PrivacyEngine(secure_mode=False)
 
         # check how to convert regular training data to data_loader form
